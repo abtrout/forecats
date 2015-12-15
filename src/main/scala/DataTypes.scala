@@ -11,8 +11,7 @@ object DataTypes extends WeatherTypes {
       "icon",
       "summary",
       "temperature",
-      "apparentTemperature"
-    )
+      "apparentTemperature")
 
   implicit def dailyWeatherCodec =
     casecodec7(DailyWeather.apply, DailyWeather.unapply)(
@@ -22,24 +21,21 @@ object DataTypes extends WeatherTypes {
       "temperatureMin",
       "temperatureMinTime",
       "temperatureMax",
-      "temperatureMaxTime"
-    )
+      "temperatureMaxTime")
 
   implicit def hourlyWeatherCodec =
     casecodec4(HourlyWeather.apply, HourlyWeather.unapply)(
       "time",
       "icon",
       "summary",
-      "temperature"
-    )
+      "temperature")
   
   case class Forecast(
     currently: CurrentWeather,
     hourly: List[HourlyWeather],
-    daily: List[DailyWeather]
-  )
+    daily: List[DailyWeather])
 
-  implicit def forecastDecoder = DecodeJson[Forecast](c => {
+  implicit def forecastDecoder = DecodeJson[Forecast] { c =>
     def parseHourly(xs: List[HourlyWeather]) =
       xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
 
@@ -48,14 +44,13 @@ object DataTypes extends WeatherTypes {
       hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]
       daily <- (c --\ "daily" --\ "data").as[List[DailyWeather]]
     } yield Forecast(currently, parseHourly(hourly), daily.take(5))
-  })
+  }
 
   implicit def forecastEncoder = EncodeJson[Forecast](f =>
     ("currently" := f.currently) ->:
     ("hourly" := f.hourly) ->:
     ("daily" := f.daily) ->:
-    jEmptyObject
-  )
+    jEmptyObject)
 
   implicit val forecastUnmarshaller = new FromResponseUnmarshaller[Forecast] {
     def apply(response: HttpResponse) = {
@@ -69,26 +64,26 @@ object DataTypes extends WeatherTypes {
 
 trait WeatherTypes {
   case class CurrentWeather(
-    icon: String,
-    summary: String,
-    temperature: Int,
-    apparentTemperature: Int
+    icon: Option[String],
+    summary: Option[String],
+    temperature: Option[Int],
+    apparentTemperature: Option[Int]
   )
 
   case class HourlyWeather(
     time: Long,
-    icon: String,
-    summary: String,
-    temperature: Int
+    icon: Option[String],
+    summary: Option[String],
+    temperature: Option[Int]
   )
 
   case class DailyWeather(
     time: Long,
-    icon: String,
-    summary: String,
-    temperatureMin: Int,
-    temperatureMinTime: Long,
-    temperatureMax: Int,
-    temperatureMaxTime: Long
+    icon: Option[String],
+    summary: Option[String],
+    temperatureMin: Option[Int],
+    temperatureMinTime: Option[Long],
+    temperatureMax: Option[Int],
+    temperatureMaxTime: Option[Long]
   )
 }
