@@ -4,6 +4,9 @@ import spray.http.HttpResponse
 import spray.httpx.unmarshalling.{FromResponseUnmarshaller, MalformedContent}
 import argonaut._, Argonaut._
 
+import scala.util.Try
+import java.util.TimeZone
+
 object DataTypes extends WeatherTypes {
 
   implicit def currentWeatherCodec =
@@ -34,26 +37,34 @@ object DataTypes extends WeatherTypes {
     )
   
   case class Forecast(
+    offset: Long,
     currently: CurrentWeather,
     hourly: List[HourlyWeather],
     daily: List[DailyWeather]
   )
 
   implicit def forecastDecoder = DecodeJson[Forecast](c => {
+
     def parseHourly(xs: List[HourlyWeather]) =
       xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
 
+    def offsetForTimezone(tz: String): Long =
+      Try(TimeZone.getTimeZone(tz).getOffset(System.currentTimeMillis)).toOption.getOrElse(0).toLong
+
     for {
+      timezone <- (c --\ "timezone").as[String]
+      offset = offsetForTimezone(timezone)
       currently <- (c --\ "currently").as[CurrentWeather]
       hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]
       daily <- (c --\ "daily" --\ "data").as[List[DailyWeather]]
-    } yield Forecast(currently, parseHourly(hourly), daily.take(5))
+    } yield Forecast(offset, currently, parseHourly(hourly), daily.take(5))
   })
 
   implicit def forecastEncoder = EncodeJson[Forecast](f =>
     ("currently" := f.currently) ->:
     ("hourly" := f.hourly) ->:
     ("daily" := f.daily) ->:
+    ("offset" := f.offset) ->:
     jEmptyObject
   )
 
