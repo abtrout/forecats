@@ -87,11 +87,11 @@
                 </div>
                 <div>
                   <span class='text-sm'>High {{ forecast.daily[0].temperatureMax | temp: degF }}</span>
-                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 | date: 'h a' }}</span>
+                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 + forecast.offset | date: 'h a' :'UTC' }}</span>
                 </div>
                 <div>
                   <span class='text-sm'>Low {{ forecast.daily[0].temperatureMin | temp: degF }}</span>
-                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 | date: 'h a' }}</span>
+                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 + forecast.offset | date: 'h a' :'UTC' }}</span>
                 </div>
               </span>
             </div>
@@ -104,7 +104,7 @@
           </div>
           <ul class='list list-inline' ng-show='showHourly'>
             <li class='text-center' ng-repeat='hour in forecast.hourly'>
-              <div class='text-sm'>{{ hour.time * 1000 | date: 'h a' }}</div>
+              <div class='text-sm'>{{ hour.time * 1000 + forecast.offset | date: 'h a' :'UTC' }}</div>
               <div>
                 <canvas skycon='hour.icon' class='skycon-sm' width='108' height='108' title='{{ hour.summary }}'></canvas>
               </div>
@@ -117,7 +117,7 @@
           </ul>
           <ul class='list list-inline' ng-hide='showHourly'>
             <li class='text-center' ng-repeat='day in forecast.daily'>
-              <div class='text-sm'>{{ day.time * 1000 | date: 'EEE' | uppercase }}</div>
+              <div class='text-sm'>{{ day.time * 1000 + forecast.offset | date: 'EEE': 'UTC' | uppercase }}</div>
               <div>
                 <canvas skycon='day.icon' class='skycon-sm' width='108' height='108' title='{{ day.summary }}'></canvas>
               </div>
