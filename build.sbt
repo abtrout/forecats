@@ -17,7 +17,7 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-caching"     % sprayV,
     "io.spray"            %%  "spray-client"      % sprayV,
     "io.spray"            %%  "spray-routing"     % sprayV,
-    "io.argonaut"         %%  "argonaut"          % "6.0.4",
+    "io.argonaut"         %%  "argonaut"          % "6.1",
     "org.scalikejdbc"     %%  "scalikejdbc"       % "2.2.8",
     "org.xerial"          %   "sqlite-jdbc"       % "3.7.2"
   )
